@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  mysql: 
+    image: mysql
+    container_name: mysql-db
+    ports:
+      - "5101:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - mysql-db:/var/lib/mysql
+    networks:
+      - mysql-net
+
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    ports:
+      - "5100:80"
+    depends_on:
+      - mysql # service's name
+    environment:
+      - WORDPRESS_DB_HOST=mysql # service's name
+      # the same as mysql db enviroment variables
+      - WORDPRESS_DB_USER=${MYSQL_USER}
+      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}
+      - WORDPRESS_DB_NAME=${MYSQL_DATABASE}
+    volumes: 
+      - wordpress-db:/var/www/html
+    networks:
+      - mysql-net
+
+volumes:
+  mysql-db:
+  wordpress-db:
+
+networks:
+  mysql-net:
+    name: wordpress-network
+    driver: bridge

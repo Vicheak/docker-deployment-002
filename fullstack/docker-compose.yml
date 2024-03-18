@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    ports:
+      - "5200:5432"
+    # environment:
+    #  - POSTGRES_USER=admin
+    #  - POSTGRES_PASSWORD=admin
+    #  - POSTGRES_DB=mydb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydb
+    volumes:
+      - pg-db:/var/lib/postgresql/data
+    networks:
+      - fullstack-network
+    
+  spring-api:
+    image: spring-app
+    container_name: spring-app
+    build:
+      context: ./spring
+      dockerfile: ./Dockerfile
+    ports:
+      - "5201:8080"
+    depends_on:
+      - postgres-db
+    volumes:
+      - /home/vicheak/compose/fullstack/spring/workspace:/workspace
+    networks:
+      - fullstack-network
+  
+  react-ui:
+    image: react-app
+    container_name: react-app
+    build:
+      context: ./reactjs/react-project
+      dockerfile: ./Dockerfile
+    ports:
+      - "5202:80"
+    depends_on:
+      - spring-api
+    networks:
+      - fullstack-network
+
+volumes:
+  pg-db:
+
+networks:
+  fullstack-network:
